@@ -1,0 +1,46 @@
+---
+title: "HDI Cancer"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(reticulate)
+library(bayestestR)
+use_condaenv("base")
+
+```
+
+```{python}
+import pandas as pd
+import ast
+df = pd.read_csv("bayesian_analysis.csv",header=0,index_col=0)
+df['posterior_dist'] = df['posterior_dist'].apply(lambda x: ast.literal_eval(x))
+df['CI_low']=0.0
+df['CI_high']=0.0
+```
+
+```{r}
+posterior_dists <- py$df$posterior_dist
+hdis_vector=c()
+for (val in posterior_dists){
+  ci_hdi <- ci(val, method = "HDI",ci=0.95)
+  hdis_vector <- c(hdis_vector,ci_hdi$CI_low)
+  hdis_vector <- c(hdis_vector,ci_hdi$CI_high)
+}
+```
+
+```{python}
+import numpy as np
+hdis_vector = r.hdis_vector
+hdis_vector = np.split(np.asarray(hdis_vector),int(len(hdis_vector)/2))
+for i,v in enumerate(hdis_vector):
+  df.iloc[i,4]=v[0]
+  df.iloc[i,5]=v[1]
+df=df.drop(['posterior_dist'],axis=1)
+df.to_csv("cancer_results_minimal.csv")  
+```
+
