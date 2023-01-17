@@ -42,10 +42,10 @@ def get_files(parent_dir,pattern=None,not_field=None):
     paths = [f"{p}/{f}" for f,p in zip(result_files,dirs)]
     return paths
 
-def create_plots(aucs_dict):
+def create_plots(aucs_dict,save=True):
     width = 0.1
     plt.figure(figsize=(10,7))
-    xaxis= np.arange(10)
+    xaxis= np.arange(15)
     #rf
     plt.bar(xaxis,aucs_dict['s_rf'],width,label=(f"Random Forest single (total mean AUC {np.around(np.mean(aucs_dict['s_rf']),3)})"),color='#377eb8')
     plt.bar(xaxis + width,aucs_dict['m_rf'],width,label=(f"Random Forest multi (total mean AUC {np.around(np.mean(aucs_dict['m_rf']),3)})"),color='#ff7f00')
@@ -56,10 +56,13 @@ def create_plots(aucs_dict):
     plt.bar(xaxis + width*4,aucs_dict['s_nn'],width,label=(f"NN single (total mean AUC {np.around(np.mean(aucs_dict['s_nn']),3)})"),color='#a65628')
     plt.bar(xaxis + width*5,aucs_dict['m_nn'],width,label=(f"NN multi (total mean AUC {np.around(np.mean(aucs_dict['m_nn']),3)})"),color='#dede00')
     plt.ylabel('AUC',fontsize='large')
-    plt.title('AUCs of classifiers in two times repeated 5-fold nested cross-validation',fontsize='large')
-    plt.xticks(xaxis + width, ('R1 F1','R1 F2','R1 F3','R1 F4','R1 F5','R2 F1','R2 F2','R2 F3','R2 F4','R2 F5',),fontsize='medium')
+    plt.title('AUCs of classifiers in three times repeated 5-fold nested cross-validation',fontsize='large')
+    plt.xticks(xaxis + width, ('R1 F1','R1 F2','R1 F3','R1 F4','R1 F5','R2 F1','R2 F2','R2 F3','R2 F4','R2 F5','R3 F1','R3 F2','R3 F3','R3 F4','R3 F5'),fontsize='medium')
     plt.legend(loc=4,fontsize='large')
+    if save:
+        plt.savefig(f'{results_path}/cancer_aucs.pdf', dpi=300)
     plt.show()
+     
 
 
 # %%
@@ -72,6 +75,10 @@ single_diagose_rf_repeat_2 = get_files(parent_dir=results_path,pattern=['_single
 single_diagose_nn_repeat_2 = get_files(parent_dir=results_path,pattern=['_single','nn','repeat_2'])
 single_diagose_lr_repeat_2 = get_files(parent_dir=results_path,pattern=['_single','lr','repeat_2'])
 
+single_diagose_rf_repeat_3 = get_files(parent_dir=results_path,pattern=['_single','rf','repeat_3'])
+single_diagose_nn_repeat_3 = get_files(parent_dir=results_path,pattern=['_single','nn','repeat_3'])
+single_diagose_lr_repeat_3 = get_files(parent_dir=results_path,pattern=['_single','lr','repeat_3'])
+
 multi_diagnose_paths_rf_repeat_1 = get_files(parent_dir=results_path,pattern=['rf','repeat_1'],not_field='_single')
 multi_diagnose_paths_nn_repeat_1 = get_files(parent_dir=results_path,pattern=['nn','repeat_1'],not_field='_single')
 multi_diagnose_paths_lr_repeat_1 = get_files(parent_dir=results_path,pattern=['lr','repeat_1'],not_field='_single')
@@ -79,6 +86,10 @@ multi_diagnose_paths_lr_repeat_1 = get_files(parent_dir=results_path,pattern=['l
 multi_diagnose_paths_rf_repeat_2 = get_files(parent_dir=results_path,pattern=['rf','repeat_2'],not_field='_single')
 multi_diagnose_paths_nn_repeat_2 = get_files(parent_dir=results_path,pattern=['nn','repeat_2'],not_field='_single')
 multi_diagnose_paths_lr_repeat_2 = get_files(parent_dir=results_path,pattern=['lr','repeat_2'],not_field='_single')
+
+multi_diagnose_paths_rf_repeat_3 = get_files(parent_dir=results_path,pattern=['rf','repeat_3'],not_field='_single')
+multi_diagnose_paths_nn_repeat_3 = get_files(parent_dir=results_path,pattern=['nn','repeat_3'],not_field='_single')
+multi_diagnose_paths_lr_repeat_3 = get_files(parent_dir=results_path,pattern=['lr','repeat_3'],not_field='_single')
 
 auc_dict = {}
 
@@ -106,14 +117,26 @@ auc_dict['s_lr_r_2']=s_lr_df.iloc[:,0]
 auc_dict['m_lr_r_2']=m_lr_df.iloc[:,0]
 auc_dict['s_nn_r_2']=s_nn_df.iloc[:,0]
 auc_dict['m_nn_r_2']=m_nn_df.iloc[:,0]
+s_rf_df = pd.read_csv(single_diagose_rf_repeat_3[0],header=None)
+s_nn_df = pd.read_csv(single_diagose_nn_repeat_3[0],header=None)
+s_lr_df = pd.read_csv(single_diagose_lr_repeat_3[0],header=None)
+m_rf_df = pd.read_csv(multi_diagnose_paths_rf_repeat_3[0],header=None)
+m_nn_df = pd.read_csv(multi_diagnose_paths_nn_repeat_3[0],header=None)
+m_lr_df = pd.read_csv(multi_diagnose_paths_lr_repeat_3[0],header=None)
+auc_dict['s_rf_r_3']=s_rf_df.iloc[:,0]
+auc_dict['m_rf_r_3']=m_rf_df.iloc[:,0]
+auc_dict['s_lr_r_3']=s_lr_df.iloc[:,0]
+auc_dict['m_lr_r_3']=m_lr_df.iloc[:,0]
+auc_dict['s_nn_r_3']=s_nn_df.iloc[:,0]
+auc_dict['m_nn_r_3']=m_nn_df.iloc[:,0]
+auc_dict['s_rf']=np.concatenate((auc_dict['s_rf_r_1'],auc_dict['s_rf_r_2'],auc_dict['s_rf_r_3']),axis=None)
+auc_dict['m_rf']=np.concatenate((auc_dict['m_rf_r_1'],auc_dict['m_rf_r_2'],auc_dict['m_rf_r_3']),axis=None)
+auc_dict['s_lr']=np.concatenate((auc_dict['s_lr_r_1'],auc_dict['s_lr_r_2'],auc_dict['s_lr_r_3']),axis=None)
+auc_dict['m_lr']=np.concatenate((auc_dict['m_lr_r_1'],auc_dict['m_lr_r_2'],auc_dict['m_lr_r_3']),axis=None)
+auc_dict['s_nn']=np.concatenate((auc_dict['s_nn_r_1'],auc_dict['s_nn_r_2'],auc_dict['s_nn_r_3']),axis=None)
+auc_dict['m_nn']=np.concatenate((auc_dict['m_nn_r_1'],auc_dict['m_nn_r_2'],auc_dict['m_nn_r_3']),axis=None)
 
-auc_dict['s_rf']=np.concatenate((auc_dict['s_rf_r_1'],auc_dict['s_rf_r_2']),axis=None)
-auc_dict['m_rf']=np.concatenate((auc_dict['m_rf_r_1'],auc_dict['m_rf_r_2']),axis=None)
-auc_dict['s_lr']=np.concatenate((auc_dict['s_lr_r_1'],auc_dict['s_lr_r_2']),axis=None)
-auc_dict['m_lr']=np.concatenate((auc_dict['m_lr_r_1'],auc_dict['m_lr_r_2']),axis=None)
-auc_dict['s_nn']=np.concatenate((auc_dict['s_nn_r_1'],auc_dict['s_nn_r_2']),axis=None)
-auc_dict['m_nn']=np.concatenate((auc_dict['m_nn_r_1'],auc_dict['m_nn_r_2']),axis=None)
-
+assert len(auc_dict['m_nn'])==15
 create_plots(aucs_dict=auc_dict)
 
 
@@ -127,8 +150,8 @@ results_dict={}
 
 for c in comparisons:
     if f"{c['a']}_vs_{c['b']}" not in results_dict.keys() and f"{c['b']}_vs_{c['a']}" not in results_dict.keys() and f"{c['a']}_vs_{c['b']}" != f"{c['b']}_vs_{c['a']}":
-        results = baycomp.CorrelatedTTest.probs(x=auc_dict[c['a']],y=auc_dict[c['b']],rope=0.01,runs=2)
-        results_dict[f"{c['a']}_vs_{c['b']}"]=(results,baycomp.CorrelatedTTest.sample(auc_dict[c['a']],y=auc_dict[c['b']],runs=2))
+        results = baycomp.CorrelatedTTest.probs(x=auc_dict[c['a']],y=auc_dict[c['b']],rope=0.01,runs=3)
+        results_dict[f"{c['a']}_vs_{c['b']}"]=(results,baycomp.CorrelatedTTest.sample(auc_dict[c['a']],y=auc_dict[c['b']],runs=3))
 
 print(results_dict['m_rf_vs_s_rf'])
 d = {'comparison':results_dict.keys(),'a':[0.0]*len(results_dict.keys()),'rope':[0.0]*len(results_dict.keys()),'b':[0.0]*len(results_dict.keys())}
@@ -155,7 +178,7 @@ df.head()
 #bayesian estimation
 import baycomp
     
-results = baycomp.CorrelatedTTest.probs(x=auc_dict['m_rf'],y=auc_dict['s_lr'],rope=0.01,runs=2)
+results = baycomp.CorrelatedTTest.probs(x=auc_dict['m_rf'],y=auc_dict['s_lr'],rope=0.01,runs=3)
 print(results)
 fig=baycomp.CorrelatedTTest.plot(x=auc_dict['m_rf'],y=auc_dict['s_lr'],rope=0.01,names=('m_rf','s_rf'))
 df = pd.read_csv(f'{results_path}/cancer_results_minimal.csv',header=0,index_col=0)
