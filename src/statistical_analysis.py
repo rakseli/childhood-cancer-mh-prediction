@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 from os import listdir
 from file_paths import results_path
 
+
+
 def get_files(parent_dir,pattern=None,not_field=None):
     all_files = []
     all_dirs = listdir(parent_dir)
@@ -47,16 +49,16 @@ def create_plots(aucs_dict,save=True):
     plt.figure(figsize=(10,7))
     xaxis= np.arange(15)
     #rf
-    plt.bar(xaxis,aucs_dict['s_rf'],width,label=(f"Random Forest single (total mean AUC {np.around(np.mean(aucs_dict['s_rf']),3)})"),color='#377eb8')
-    plt.bar(xaxis + width,aucs_dict['m_rf'],width,label=(f"Random Forest multi (total mean AUC {np.around(np.mean(aucs_dict['m_rf']),3)})"),color='#ff7f00')
+    plt.bar(xaxis,aucs_dict['s_rf'],width,label=(f"RF OCP (total mean AUC {np.around(np.mean(aucs_dict['s_rf']),3)})"),color='#377eb8')
+    plt.bar(xaxis + width,aucs_dict['m_rf'],width,label=(f"RF whole (total mean AUC {np.around(np.mean(aucs_dict['m_rf']),3)})"),color='#ff7f00')
     #lr
-    plt.bar(xaxis + width*2,aucs_dict['s_lr'],width,label=(f"Log Reg single (total mean AUC {np.around(np.mean(aucs_dict['s_lr']),3)})"),color='#4daf4a')
-    plt.bar(xaxis + width*3,aucs_dict['m_lr'],width,label=(f"Log Reg multi (total mean AUC {np.around(np.mean(aucs_dict['m_lr']),3)})"),color='#f781bf')
+    plt.bar(xaxis + width*2,aucs_dict['s_lr'],width,label=(f"LR OCP (total mean AUC {np.around(np.mean(aucs_dict['s_lr']),3)})"),color='#4daf4a')
+    plt.bar(xaxis + width*3,aucs_dict['m_lr'],width,label=(f"LR whole (total mean AUC {np.around(np.mean(aucs_dict['m_lr']),3)})"),color='#f781bf')
     #nn
-    plt.bar(xaxis + width*4,aucs_dict['s_nn'],width,label=(f"NN single (total mean AUC {np.around(np.mean(aucs_dict['s_nn']),3)})"),color='#a65628')
-    plt.bar(xaxis + width*5,aucs_dict['m_nn'],width,label=(f"NN multi (total mean AUC {np.around(np.mean(aucs_dict['m_nn']),3)})"),color='#dede00')
-    plt.ylabel('AUC',fontsize='large')
-    plt.title('AUCs of classifiers in three times repeated 5-fold nested cross-validation',fontsize='large')
+    plt.bar(xaxis + width*4,aucs_dict['s_nn'],width,label=(f"NN OCP (total mean AUC {np.around(np.mean(aucs_dict['s_nn']),3)})"),color='#a65628')
+    plt.bar(xaxis + width*5,aucs_dict['m_nn'],width,label=(f"NN whole (total mean AUC {np.around(np.mean(aucs_dict['m_nn']),3)})"),color='#dede00')
+    plt.ylabel('AUC',fontsize='large',font='sans serif')
+    plt.title('AUCs of classifiers in three times repeated 5-fold nested cross-validation',fontsize='large',font='sans serif')
     plt.xticks(xaxis + width, ('R1 F1','R1 F2','R1 F3','R1 F4','R1 F5','R2 F1','R2 F2','R2 F3','R2 F4','R2 F5','R3 F1','R3 F2','R3 F3','R3 F4','R3 F5'),fontsize='medium')
     plt.legend(loc=4,fontsize='large')
     if save:
